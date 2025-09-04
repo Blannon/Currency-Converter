@@ -3,6 +3,8 @@ package com.blannonnetwork.currencyconveter.data
 import com.blannonnetwork.currencyconveter.BuildConfig
 import com.blannonnetwork.currencyconveter.domain.Currency
 import com.blannonnetwork.currencyconveter.domain.ExchangeRepository
+import com.blannonnetwork.currencyconveter.data.network.dto.PairResponse
+import com.blannonnetwork.currencyconveter.data.mappers.toConversionResult
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -13,191 +15,43 @@ class ExchangeRepositoryImpl(
 
     private val tag ="ExchangeRepositoryImpl: "
     private val BASE_URL = "https://v6.exchangerate-api.com/v6"
-    private val  ApiKey = BuildConfig.API_KEY
+    private val ApiKey = BuildConfig.API_KEY
 
     override suspend fun convert(
         fromCurrency: String,
         toCurrency: String,
         amount: Double
     ): Double {
-        val result: Exchange = httpClient.get(
+        val response: PairResponse = httpClient.get(
             "$BASE_URL/$ApiKey/pair/$fromCurrency/$toCurrency/$amount"
         ).body()
 
-        println(tag + result.conversion_result)
+        val result = response.toConversionResult()
+        println(tag + result)
 
-        return result.conversion_result
+        return result
     }
 
+    // Simple in-memory cache for supported currencies during app session
+    private var cachedCurrencies: List<Currency>? = null
+
     override suspend fun getAllCurrencies(): List<Currency> {
-        return listOf(
-            Currency("United States Dollar", "USD"),
-            Currency("Euro", "EUR"),
-            Currency("Japanese Yen", "JPY"),
-            Currency("British Pound Sterling", "GBP"),
-            Currency("Canadian Dollar", "CAD"),
-            Currency("Australian Dollar", "AUD"),
-            Currency("Swiss Franc", "CHF"),
-            Currency("Chinese Yuan", "CNY"),
-            Currency("Indian Rupee", "INR"),
-            Currency("Russian Ruble", "RUB"),
-            Currency("Brazilian Real", "BRL"),
-            Currency("South African Rand", "ZAR"),
-            Currency("Mexican Peso", "MXN"),
-            Currency("New Zealand Dollar", "NZD"),
-            Currency("Singapore Dollar", "SGD"),
-            Currency("Hong Kong Dollar", "HKD"),
-            Currency("Swedish Krona", "SEK"),
-            Currency("Norwegian Krone", "NOK"),
-            Currency("Danish Krone", "DKK"),
-            Currency("Polish Zloty", "PLN"),
-            Currency("Turkish Lira", "TRY"),
-            Currency("Thai Baht", "THB"),
-            Currency("Indonesian Rupiah", "IDR"),
-            Currency("Philippine Peso", "PHP"),
-            Currency("Malaysian Ringgit", "MYR"),
-            Currency("South Korean Won", "KRW"),
-            Currency("Israeli Shekel", "ILS"),
-            Currency("Saudi Riyal", "SAR"),
-            Currency("UAE Dirham", "AED"),
-            Currency("Egyptian Pound", "EGP"),
-            Currency("Pakistani Rupee", "PKR"),
-            Currency("Bangladeshi Taka", "BDT"),
-            Currency("Vietnamese Dong", "VND"),
-            Currency("Nigerian Naira", "NGN"),
-            Currency("Kenyan Shilling", "KES"),
-            Currency("Ghanaian Cedi", "GHS"),
-            Currency("Tanzanian Shilling", "TZS"),
-            Currency("Ugandan Shilling", "UGX"),
-            Currency("Moroccan Dirham", "MAD"),
-            Currency("Algerian Dinar", "DZD"),
-            Currency("Tunisian Dinar", "TND"),
-            Currency("West African CFA Franc", "XOF"),
-            Currency("Central African CFA Franc", "XAF"),
-            Currency("Armenian Dram", "AMD"),
-            Currency("Azerbaijani Manat", "AZN"),
-            Currency("Georgian Lari", "GEL"),
-            Currency("Kazakhstani Tenge", "KZT"),
-            Currency("Uzbekistani Som", "UZS"),
-            Currency("Turkmenistani Manat", "TMT"),
-            Currency("Kyrgyzstani Som", "KGS"),
-            Currency("Tajikistani Somoni", "TJS"),
-            Currency("Sri Lankan Rupee", "LKR"),
-            Currency("Nepalese Rupee", "NPR"),
-            Currency("Bhutanese Ngultrum", "BTN"),
-            Currency("Maldivian Rufiyaa", "MVR"),
-            Currency("Afghan Afghani", "AFN"),
-            Currency("Iranian Rial", "IRR"),
-            Currency("Iraqi Dinar", "IQD"),
-            Currency("Jordanian Dinar", "JOD"),
-            Currency("Kuwaiti Dinar", "KWD"),
-            Currency("Bahraini Dinar", "BHD"),
-            Currency("Omani Rial", "OMR"),
-            Currency("Qatari Riyal", "QAR"),
-            Currency("Lebanese Pound", "LBP"),
-            Currency("Syrian Pound", "SYP"),
-            Currency("Yemeni Rial", "YER"),
-            Currency("Chilean Peso", "CLP"),
-            Currency("Colombian Peso", "COP"),
-            Currency("Argentine Peso", "ARS"),
-            Currency("Peruvian Sol", "PEN"),
-            Currency("Uruguayan Peso", "UYU"),
-            Currency("Paraguayan Guarani", "PYG"),
-            Currency("Bolivian Boliviano", "BOB"),
-            Currency("Venezuelan Bolívar", "VES"),
-            Currency("Ecuadorian Dollar", "USD"),
-            Currency("Panamanian Balboa", "PAB"),
-            Currency("Costa Rican Colón", "CRC"),
-            Currency("Honduran Lempira", "HNL"),
-            Currency("Guatemalan Quetzal", "GTQ"),
-            Currency("Nicaraguan Córdoba", "NIO"),
-            Currency("El Salvador Colon", "SVC"),
-            Currency("Cuban Peso", "CUP"),
-            Currency("Dominican Peso", "DOP"),
-            Currency("Haitian Gourde", "HTG"),
-            Currency("Jamaican Dollar", "JMD"),
-            Currency("Trinidad and Tobago Dollar", "TTD"),
-            Currency("Barbadian Dollar", "BBD"),
-            Currency("Bahamian Dollar", "BSD"),
-            Currency("East Caribbean Dollar", "XCD"),
-            Currency("Belize Dollar", "BZD"),
-            Currency("Surinamese Dollar", "SRD"),
-            Currency("Guyanaese Dollar", "GYD"),
-            Currency("Fijian Dollar", "FJD"),
-            Currency("Samoan Tala", "WST"),
-            Currency("Tongan Paʻanga", "TOP"),
-            Currency("Vanuatu Vatu", "VUV"),
-            Currency("Papua New Guinean Kina", "PGK"),
-            Currency("Solomon Islands Dollar", "SBD"),
-            Currency("New Caledonian CFP Franc", "XPF"),
-            Currency("Mauritian Rupee", "MUR"),
-            Currency("Seychellois Rupee", "SCR"),
-            Currency("Malagasy Ariary", "MGA"),
-            Currency("Comorian Franc", "KMF"),
-            Currency("Mozambican Metical", "MZN"),
-            Currency("Angolan Kwanza", "AOA"),
-            Currency("Zambian Kwacha", "ZMW"),
-            Currency("Zimbabwean Dollar", "ZWL"),
-            Currency("Botswana Pula", "BWP"),
-            Currency("Namibian Dollar", "NAD"),
-            Currency("Lesotho Loti", "LSL"),
-            Currency("Eswatini Lilangeni", "SZL"),
-            Currency("Somali Shilling", "SOS"),
-            Currency("South Sudanese Pound", "SSP"),
-            Currency("Sudanese Pound", "SDG"),
-            Currency("Ethiopian Birr", "ETB"),
-            Currency("Rwandan Franc", "RWF"),
-            Currency("Burundian Franc", "BIF"),
-            Currency("Congolese Franc", "CDF"),
-            Currency("Malawian Kwacha", "MWK"),
-            Currency("Liberian Dollar", "LRD"),
-            Currency("Sierra Leonean Leone", "SLE"),
-            Currency("Guinean Franc", "GNF"),
-            Currency("Cape Verdean Escudo", "CVE"),
-            Currency("São Tomé and Príncipe Dobra", "STN"),
-            Currency("Icelandic Krona", "ISK"),
-            Currency("Czech Koruna", "CZK"),
-            Currency("Hungarian Forint", "HUF"),
-            Currency("Romanian Leu", "RON"),
-            Currency("Bulgarian Lev", "BGN"),
-            Currency("Croatian Kuna", "HRK"),
-            Currency("Serbian Dinar", "RSD"),
-            Currency("Bosnia-Herzegovina Convertible Mark", "BAM"),
-            Currency("Albanian Lek", "ALL"),
-            Currency("Macedonian Denar", "MKD"),
-            Currency("Moldovan Leu", "MDL"),
-            Currency("Belarusian Ruble", "BYN"),
-            Currency("Ukrainian Hryvnia", "UAH"),
-            Currency("Slovak Koruna", "SKK"),
-            Currency("Slovenian Tolar", "SIT"),
-            Currency("Estonian Kroon", "EEK"),
-            Currency("Latvian Lats", "LVL"),
-            Currency("Lithuanian Litas", "LTL"),
-            Currency("Andorran Peseta", "ADP"),
-            Currency("Monégasque Franc", "MCF"),
-            Currency("San Marino Lira", "SML"),
-            Currency("Vatican Lira", "VAL"),
-            Currency("Luxembourgish Franc", "LUF"),
-            Currency("Belgian Franc", "BEF"),
-            Currency("Dutch Guilder", "NLG"),
-            Currency("Austrian Schilling", "ATS"),
-            Currency("Finnish Markka", "FIM"),
-            Currency("Greek Drachma", "GRD"),
-            Currency("Portuguese Escudo", "PTE"),
-            Currency("Spanish Peseta", "ESP"),
-            Currency("Irish Pound", "IEP"),
-            Currency("Cypriot Pound", "CYP"),
-            Currency("Maltese Lira", "MTL"),
-            Currency("Slovak Koruna", "SKK"),
-            Currency("Turkish Old Lira", "TRL"),
-            Currency("German Mark", "DEM"),
-            Currency("French Franc", "FRF"),
-            Currency("Italian Lira", "ITL"),
-            Currency("Special Drawing Rights", "XDR"),
-            Currency("Gold (one troy ounce)", "XAU"),
-            Currency("Silver (one troy ounce)", "XAG"),
-            Currency("Platinum (one troy ounce)", "XPT"),
-            Currency("Palladium (one troy ounce)", "XPD")
-        )
+        cachedCurrencies?.let { return it }
+
+        val codesResponse: com.blannonnetwork.currencyconveter.data.network.dto.CodesResponse = httpClient.get(
+            "$BASE_URL/$ApiKey/codes"
+        ).body()
+
+        val currencies = codesResponse.supportedCodes
+            .mapNotNull { pair ->
+                val code = pair.getOrNull(0)
+                val name = pair.getOrNull(1)
+                if (com.blannonnetwork.currencyconveter.domain.CurrencyCode.isValid(code) && !name.isNullOrBlank()) {
+                    Currency(name = name, code = code!!)
+                } else null
+            }
+
+        cachedCurrencies = currencies
+        return currencies
     }
 }

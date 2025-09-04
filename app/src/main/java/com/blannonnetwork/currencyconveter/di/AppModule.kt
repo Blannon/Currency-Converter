@@ -1,5 +1,6 @@
 package com.blannonnetwork.currencyconveter.di
 
+import com.blannonnetwork.currencyconveter.BuildConfig
 import com.blannonnetwork.currencyconveter.data.ExchangeRepositoryImpl
 import com.blannonnetwork.currencyconveter.domain.ConvertUseCase
 import com.blannonnetwork.currencyconveter.domain.ExchangeRepository
@@ -31,39 +32,7 @@ val appModule = module {
     viewModel { ExchangeViewModel(get(), get()) }
 
     single {
-        HttpClient (CIO){
-            expectSuccess = true
-
-            engine {
-                endpoint {
-                    keepAliveTime = 5000
-                    connectTimeout = 5000
-                    connectAttempts = 5
-                }
-            }
-
-            install(ContentNegotiation){
-                json(
-                    Json {
-                        prettyPrint = true
-                        isLenient = true
-                        ignoreUnknownKeys = true
-                    }
-                )
-            }
-
-            install(DefaultRequest){
-                header(HttpHeaders.ContentType, ContentType.Application.Json)
-            }
-
-            install(Logging){
-                logger = object : Logger{
-                    override fun log(message: String) {
-                        println(message)
-                    }
-                }
-                level = LogLevel.ALL
-            }
-        }
+        // Provide HttpClient from centralized provider in data.network
+        com.blannonnetwork.currencyconveter.data.network.KtorClientProvider.create()
     }
 }
