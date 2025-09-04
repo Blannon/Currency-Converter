@@ -8,28 +8,90 @@ import com.blannonnetwork.currencyconveter.data.mappers.toConversionResult
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.plugins.*
+import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.delay
 
 class ExchangeRepositoryImpl(
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
+    private val apiConfig: com.blannonnetwork.currencyconveter.di.ApiConfig
 ): ExchangeRepository {
 
     private val tag ="ExchangeRepositoryImpl: "
-    private val BASE_URL = "https://v6.exchangerate-api.com/v6"
-    private val ApiKey = BuildConfig.API_KEY
+    private val BASE_URL = apiConfig.baseUrl
+    private val ApiKey = apiConfig.apiKey
+
+    private val rateCache = mutableMapOf<Pair<String, String>, Double>()
 
     override suspend fun convert(
         fromCurrency: String,
         toCurrency: String,
         amount: Double
-    ): Double {
-        val response: PairResponse = httpClient.get(
-            "$BASE_URL/$ApiKey/pair/$fromCurrency/$toCurrency/$amount"
-        ).body()
+    ): Result<Double> {
+        val pairKey = fromCurrency to toCurrency
+        return try {
+            val result = retryWithBackoff {
+                val response: PairResponse = httpClient.get(
+                    "$BASE_URL/$ApiKey/pair/$fromCurrency/$toCurrency/$amount"
+                ).body()
+                if (response.result == "error") {
+                    throw com.blannonnetwork.currencyconveter.data.network.ApiErrorException(response.errorType ?: "unknown-error")
+                }
+                response.toConversionResult()
+            }
+            // Cache rate per 1 unit if amount > 0
+            if (amount > 0) {
+                val rate = result / amount
+                if (rate.isFinite()) rateCache[pairKey] = rate
+            }
+            println(tag + result)
+            Result.success(result)
+        } catch (e: Exception) {
+            val cachedRate = rateCache[pairKey]
+            if (cachedRate != null) {
+                val fallback = cachedRate * amount
+                Result.success(fallback)
+            } else {
+                Result.failure(e)
+            }
+        }
+    }
 
-        val result = response.toConversionResult()
-        println(tag + result)
+    private suspend fun <T> retryWithBackoff(
+        times: Int = 3,
+        initialDelayMs: Long = 200,
+        maxDelayMs: Long = 1500,
+        factor: Double = 2.0,
+        block: suspend () -> T
+    ): T {
+        var currentDelay = initialDelayMs
+        var attempt = 0
+        var lastError: Throwable? = null
+        while (attempt < times) {
+            try {
+                return block()
+            } catch (e: Exception) {
+                if (!isTransient(e) || attempt == times - 1) throw e
+                lastError = e
+                delay(currentDelay)
+                currentDelay = kotlin.math.min(maxDelayMs, (currentDelay * factor).toLong())
+                attempt++
+            }
+        }
+        throw lastError ?: IllegalStateException("Unknown error")
+    }
 
-        return result
+    private fun isTransient(e: Exception): Boolean {
+        return when (e) {
+            is java.io.IOException -> true
+            is io.ktor.client.plugins.ServerResponseException -> true // 5xx
+            is io.ktor.client.plugins.ClientRequestException -> {
+                // treat 429 and some 408 as transient
+                val status = e.response.status
+                status.value == 429 || status == HttpStatusCode.RequestTimeout
+            }
+            else -> false
+        }
     }
 
     // Simple in-memory cache for supported currencies during app session

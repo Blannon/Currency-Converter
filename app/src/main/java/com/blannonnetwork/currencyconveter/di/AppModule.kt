@@ -2,8 +2,10 @@ package com.blannonnetwork.currencyconveter.di
 
 import com.blannonnetwork.currencyconveter.BuildConfig
 import com.blannonnetwork.currencyconveter.data.ExchangeRepositoryImpl
+import com.blannonnetwork.currencyconveter.data.RatesRepositoryImpl
 import com.blannonnetwork.currencyconveter.domain.ConvertUseCase
 import com.blannonnetwork.currencyconveter.domain.ExchangeRepository
+import com.blannonnetwork.currencyconveter.domain.RatesRepository
 import com.blannonnetwork.currencyconveter.presentation.ExchangeViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -25,14 +27,14 @@ import org.koin.dsl.module
 
 val appModule = module {
 
+    single { ApiConfig(baseUrl = "https://v6.exchangerate-api.com/v6", apiKey = com.blannonnetwork.currencyconveter.BuildConfig.API_KEY) }
+
+    single { com.blannonnetwork.currencyconveter.data.network.KtorClientProvider.create() }
+
     singleOf(:: ExchangeRepositoryImpl).bind<ExchangeRepository>()
+    singleOf(:: RatesRepositoryImpl).bind<RatesRepository>()
 
     single { ConvertUseCase(get()) }
 
     viewModel { ExchangeViewModel(get(), get()) }
-
-    single {
-        // Provide HttpClient from centralized provider in data.network
-        com.blannonnetwork.currencyconveter.data.network.KtorClientProvider.create()
-    }
 }

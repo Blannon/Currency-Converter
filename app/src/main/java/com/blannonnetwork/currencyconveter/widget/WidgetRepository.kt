@@ -18,17 +18,10 @@ object WidgetRepository {
         val conversion_result: Double
     )
 
-    private val httpClient = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                isLenient = true
-            })
-        }
-    }
+    private val httpClient: HttpClient = com.blannonnetwork.currencyconveter.data.network.KtorClientProvider.create()
 
     private const val BASE_URL = "https://v6.exchangerate-api.com/v6"
-    private val API_KEY = BuildConfig.API_KEY
+    private val API_KEY = com.blannonnetwork.currencyconveter.BuildConfig.API_KEY
 
     suspend fun convert(
         fromCurrency: String,

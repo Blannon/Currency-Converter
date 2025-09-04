@@ -8,16 +8,20 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 
 class RatesRepositoryImpl(
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
+    private val apiConfig: com.blannonnetwork.currencyconveter.di.ApiConfig
 ) : RatesRepository {
 
-    private val baseUrl = "https://v6.exchangerate-api.com/v6"
-    private val apiKey = BuildConfig.API_KEY
+    private val baseUrl = apiConfig.baseUrl
+    private val apiKey = apiConfig.apiKey
 
     override suspend fun latestRates(base: String): Map<String, Double> {
         val response: LatestResponse = httpClient.get(
             "$baseUrl/$apiKey/latest/$base"
         ).body()
+        if (response.result == "error") {
+            throw com.blannonnetwork.currencyconveter.data.network.ApiErrorException(response.errorType ?: "unknown-error")
+        }
         return response.conversionRates
     }
 }

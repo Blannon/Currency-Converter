@@ -92,14 +92,14 @@ private fun ExchangeScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Convert",
+                        text = androidx.compose.ui.res.stringResource(com.blannonnetwork.currencyconveter.R.string.currency_converter),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 20.sp
                     )
                 },
                 actions = {
                     IconButton(onClick = { /* Notifications */ }) {
-                        Icon(Icons.Default.Notifications, contentDescription = "Notifications")
+                        Icon(Icons.Default.Notifications, contentDescription = null)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -122,7 +122,7 @@ private fun ExchangeScreen(
                 ) {
                     CircularProgressIndicator()
                     Text(
-                        "Loading currencies...",
+                        text = androidx.compose.ui.res.stringResource(com.blannonnetwork.currencyconveter.R.string.loading_currencies),
                         modifier = Modifier.padding(start = 40.dp)
                     )
                 }
@@ -152,9 +152,12 @@ private fun ExchangeScreen(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        "Last updated: ${getCurrentTimestamp()}",
+                        text = androidx.compose.ui.res.stringResource(
+                            id = com.blannonnetwork.currencyconveter.R.string.last_updated,
+                            getCurrentTimestamp()
+                        ),
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -205,7 +208,7 @@ private fun ExchangeScreen(
                                     isSelectingFromCurrency = false
                                     showBottomSheet = true
                                 },
-                            colors = CardDefaults.cardColors(containerColor = Color.Gray.copy(alpha = 0.1f)),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Column(
@@ -247,13 +250,13 @@ private fun ExchangeScreen(
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Add currency")
+                    Text(text = androidx.compose.ui.res.stringResource(com.blannonnetwork.currencyconveter.R.string.add_currency))
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    "Mid-market rates",
+                    text = androidx.compose.ui.res.stringResource(com.blannonnetwork.currencyconveter.R.string.mid_market_rates),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp
                 )
             }
@@ -276,7 +279,7 @@ fun CurrencyInputCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(80.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -315,7 +318,7 @@ fun CurrencyInputCard(
                     Icons.Default.KeyboardArrowDown,
                     contentDescription = "Select currency",
                     modifier = Modifier.size(20.dp),
-                    tint = Color.Gray
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             OutlinedTextField(
@@ -336,10 +339,10 @@ fun CurrencyInputCard(
                     textAlign = TextAlign.End
                 ),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline
                 )
             )
         }
@@ -358,7 +361,7 @@ fun CurrencyDisplayCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(100.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -433,7 +436,7 @@ fun QuickCurrencyItem(
         modifier = Modifier
             .width(200.dp)
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -484,11 +487,11 @@ fun QuickCurrencyItem(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = if (conversionRate.isNotEmpty()) "≈ $conversionRate ${currency.code}" else "Loading...",
-                style = MaterialTheme.typography.bodySmall,
-                color = if (conversionRate.isNotEmpty()) Color.Black else Color.Gray,
-                fontSize = 12.sp
-            )
+                    text = if (conversionRate.isNotEmpty()) "≈ $conversionRate ${currency.code}" else androidx.compose.ui.res.stringResource(com.blannonnetwork.currencyconveter.R.string.loading),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (conversionRate.isNotEmpty()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 12.sp
+                )
         }
     }
 }

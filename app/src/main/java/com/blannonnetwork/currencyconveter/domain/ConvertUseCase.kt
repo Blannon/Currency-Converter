@@ -7,17 +7,15 @@ class ConvertUseCase(
         fromCurrency: String,
         toCurrency: String,
         amount: String
-    ): String {
-        if(fromCurrency.isBlank()) return ""
-        if(toCurrency.isBlank()) return ""
-        if(amount.isBlank()) return ""
-        if (fromCurrency==toCurrency)return  amount
+    ): Result<String> {
+        if (fromCurrency.isBlank() || toCurrency.isBlank() || amount.isBlank()) {
+            return Result.success("")
+        }
+        if (fromCurrency == toCurrency) return Result.success(amount)
 
-        val amountDouble = amount.toDoubleOrNull() ?: return ""
+        val amountDouble = amount.toDoubleOrNull() ?: return Result.success("")
 
-        val result = exchangeRepository.convert(
-            fromCurrency, toCurrency, amountDouble
-        )
-        return result.toString()
+        return exchangeRepository.convert(fromCurrency, toCurrency, amountDouble)
+            .map { it.toString() }
     }
 }

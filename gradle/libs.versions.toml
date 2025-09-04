@@ -17,6 +17,8 @@ materialIconsExtended = "1.7.8"
 appcompat = "1.6.1"
 material = "1.10.0"
 activity = "1.10.1"
+googleFirebaseAppdistribution = "5.1.1"
+googleGmsGoogleServices = "4.4.3"
 
 [libraries]
 
@@ -57,6 +59,8 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrainsKotlinSerialization ={id= "org.jetbrains.kotlin.plugin.serializtion", version.ref = "kotlinxSerializationJson"}
+google-firebase-appdistribution = { id = "com.google.firebase.appdistribution", version.ref = "googleFirebaseAppdistribution" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 
 [bundles]
 koin = [

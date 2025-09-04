@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "74023527938",
+    "project_id": "conveter-15829",
+    "storage_bucket": "conveter-15829.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:74023527938:android:55d1a1e032f4b1d6d8691b",
+        "android_client_info": {
+          "package_name": "com.blannonnetwork.currencyconveter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeyPhyzQZNgD0C81PQnD20Q80iuBYdBhI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

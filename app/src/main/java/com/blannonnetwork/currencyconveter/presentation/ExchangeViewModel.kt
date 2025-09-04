@@ -134,7 +134,7 @@ class ExchangeViewModel(
                         toCurrency = currencyCode,
                         amount = state.amount
                     )
-                    rates[currencyCode] = result
+                    rates[currencyCode] = result.getOrElse { "Error" }
                 } catch (e: Exception) {
                     rates[currencyCode] = "Error"
                 }
@@ -169,12 +169,18 @@ class ExchangeViewModel(
             )
 
             try {
-                state = state.copy(
-                    result = convertUseCase(
-                        fromCurrency = state.from.code,
-                        toCurrency = state.to.code,
-                        amount = state.amount
-                    )
+                val result = convertUseCase(
+                    fromCurrency = state.from.code,
+                    toCurrency = state.to.code,
+                    amount = state.amount
+                )
+                result.fold(
+                    onSuccess = { value ->
+                        state = state.copy(result = value)
+                    },
+                    onFailure = { error ->
+                        state = state.copy(error = mapError(error))
+                    }
                 )
             } catch (e: Exception) {
                 state = state.copy(
@@ -185,6 +191,28 @@ class ExchangeViewModel(
                     isLoading = false
                 )
             }
+        }
+    }
+
+    private fun mapError(error: Throwable): String {
+        return when (error) {
+            is com.blannonnetwork.currencyconveter.data.network.ApiErrorException -> {
+                when (error.errorType) {
+                    "unsupported-code" -> "Unsupported currency code. Please select a valid ISO 4217 code."
+                    "malformed-request" -> "Malformed request. Please try again."
+                    "invalid-key" -> "Invalid API key. Please verify your key."
+                    "inactive-account" -> "Inactive account. Please confirm your email."
+                    "quota-reached" -> "API quota reached. Try again later."
+                    else -> "API error: ${error.errorType}"
+                }
+            }
+            is java.io.IOException -> "Network error. Check your connection."
+            is io.ktor.client.plugins.ServerResponseException -> "Server error. Please try again later."
+            is io.ktor.client.plugins.ClientRequestException -> {
+                val status = error.response.status.value
+                if (status == 429) "Too many requests. Please slow down." else "Request error ($status)."
+            }
+            else -> "Unexpected error: ${error.message ?: "Unknown"}"
         }
     }
 }
