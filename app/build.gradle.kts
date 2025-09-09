@@ -63,9 +63,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+
     buildFeatures {
         compose = true
         buildConfig = true
@@ -81,7 +79,7 @@ ktlint {
 detekt {
     buildUponDefaultConfig = true
     allRules = false
-    config = files("${rootDir}\\detekt.yml")
+    config.setFrom(files("${rootDir}\\detekt.yml"))
     baseline = file("${rootDir}\\detekt-baseline.xml")
 }
 
@@ -119,10 +117,10 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
 //    glance
-    implementation("androidx.glance:glance-appwidget:1.1.1")
-    implementation("androidx.glance:glance-material3:1.1.1")
-    implementation("androidx.datastore:datastore-preferences:1.1.7")
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
+    implementation(libs.androidx.datastore.preferences)
 
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.kotlinx.coroutines.android)
 }
