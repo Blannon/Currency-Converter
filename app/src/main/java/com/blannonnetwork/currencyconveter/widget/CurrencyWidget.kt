@@ -48,15 +48,42 @@ class CurrencyGlanceWidget : GlanceAppWidget() {
         val fromCurrency = widgetPrefs.getFrom(appWidgetId)
         val toCurrency = widgetPrefs.getTo(appWidgetId)
         val amountStr = widgetPrefs.getAmount(appWidgetId)
+        val isLoading = widgetPrefs.isLoading(appWidgetId)
 
-        val (convertedAmount, isLoading) = try {
+        var convertedAmount: String
+        var currentlyLoading = isLoading
+
+        try {
             val amt = amountStr.toDoubleOrNull() ?: 1.0
-            val result = withContext(Dispatchers.IO) {
-                WidgetRepository.convert(fromCurrency, toCurrency, amt)
+
+            if (!isLoading) {
+                widgetPrefs.setLoadingState(appWidgetId, true)
+                currentlyLoading = true
+
+                val result = withContext(Dispatchers.IO) {
+                    WidgetRepository.convert(fromCurrency, toCurrency, amt)
+                }
+
+                convertedAmount = String.format(Locale.US, "%.4f", result)
+                widgetPrefs.setLastConversion(appWidgetId, convertedAmount)
+                widgetPrefs.setLoadingState(appWidgetId, false)
+                currentlyLoading = false
+            } else {
+                convertedAmount = widgetPrefs.getLastConvertedAmount(appWidgetId) ?: "Loading..."
             }
-            String.format(Locale.US, "%.4f", result) to false
-        } catch (_: Exception) {
-            "Error" to false
+        } catch (e: Exception) {
+            widgetPrefs.setLoadingState(appWidgetId, false)
+            currentlyLoading = false
+
+            val lastConverted = widgetPrefs.getLastConvertedAmount(appWidgetId)
+            val lastTimestamp = widgetPrefs.getLastConvertedTimestamp(appWidgetId)
+            val isStale = System.currentTimeMillis() - lastTimestamp > 3600000 // 1 hour
+
+            convertedAmount = when {
+                lastConverted != null && !isStale -> lastConverted
+                lastConverted != null && isStale -> "$lastConverted*"
+                else -> "Unavailable"
+            }
         }
 
         provideContent {
@@ -65,7 +92,8 @@ class CurrencyGlanceWidget : GlanceAppWidget() {
                 toCurrency = toCurrency,
                 amount = amountStr,
                 convertedAmount = convertedAmount,
-                isLoading = isLoading
+                isLoading = currentlyLoading,
+                hasStaleData = convertedAmount.endsWith("*")
             )
         }
     }
@@ -77,13 +105,15 @@ private fun CurrencyWidgetContent(
     toCurrency: String,
     amount: String,
     convertedAmount: String,
-    isLoading: Boolean
+    isLoading: Boolean,
+    hasStaleData: Boolean = false
 ) {
     val white = ColorProvider(day = Color.White, night = Color.White)
     val dimWhite30 = ColorProvider(day = Color.White.copy(alpha = 0.3f), night = Color.White.copy(alpha = 0.3f))
     val dimWhite10 = ColorProvider(day = Color.White.copy(alpha = 0.1f), night = Color.White.copy(alpha = 0.1f))
     val dimBlack20 = ColorProvider(day = Color.Black.copy(alpha = 0.2f), night = Color.Black.copy(alpha = 0.2f))
     val textGreen = ColorProvider(day = Color(0xFF4CAF50), night = Color(0xFF4CAF50))
+    val textAmber = ColorProvider(day = Color(0xFFFF9800), night = Color(0xFFFF9800))
     val bg = ColorProvider(day = Color(0xFF1C1C1E), night = Color(0xFF1C1C1E))
 
     Column(
@@ -156,7 +186,6 @@ private fun CurrencyWidgetContent(
                     fontWeight = FontWeight.Bold
                 )
             )
-
         }
 
         Spacer(modifier = GlanceModifier.height(8.dp))
@@ -200,20 +229,34 @@ private fun CurrencyWidgetContent(
             Spacer(modifier = GlanceModifier.width(8.dp))
 
             Text(
-                text = if (isLoading) LocalContext.current.getString(com.blannonnetwork.currencyconveter.R.string.loading) else convertedAmount,
+                text = when {
+                    isLoading -> LocalContext.current.getString(com.blannonnetwork.currencyconveter.R.string.loading)
+                    convertedAmount == "Unavailable" -> "Unavailable"
+                    else -> convertedAmount.replace("*", "")
+                },
                 style = TextStyle(
-                    color = textGreen,
+                    color = when {
+                        isLoading -> white
+                        convertedAmount == "Unavailable" -> textAmber
+                        hasStaleData -> textAmber
+                        else -> textGreen
+                    },
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
             )
-
-
         }
 
         Spacer(modifier = GlanceModifier.height(6.dp))
-
-        // Last updated time
+        if (hasStaleData) {
+            Text(
+                text = "* Using cached data",
+                style = TextStyle(
+                    color = ColorProvider(day = Color.White.copy(alpha = 0.6f), night = Color.White.copy(alpha = 0.6f)),
+                    fontSize = 9.sp
+                )
+            )
+        }
         Text(
             text = LocalContext.current.getString(
                 com.blannonnetwork.currencyconveter.R.string.last_updated,
@@ -237,15 +280,20 @@ private fun CurrencyWidgetContent(
     }
 }
 
-// Actions
 class RefreshAction : ActionCallback {
     override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
+        val glanceManager = androidx.glance.appwidget.GlanceAppWidgetManager(context)
+        val appWidgetId = glanceManager.getAppWidgetId(glanceId)
+        val widgetPrefs = com.blannonnetwork.currencyconveter.widget.data.WidgetPrefs(context)
+
+        widgetPrefs.setLoadingState(appWidgetId, false)
+
         updateAppWidgetState(context, glanceId) { prefs ->
-            prefs[longPreferencesKey(com.blannonnetwork.currencyconveter.widget.WidgetKeys.STATE_REFRESH_TIME)] = System.currentTimeMillis()
+            prefs[longPreferencesKey(WidgetKeys.STATE_REFRESH_TIME)] = System.currentTimeMillis()
         }
         CurrencyGlanceWidget().update(context, glanceId)
     }
@@ -264,7 +312,9 @@ class SwapAction : ActionCallback {
         val from = prefs.getFrom(appWidgetId)
         val to = prefs.getTo(appWidgetId)
 
+        // Swap currencies and clear cache to force refresh
         prefs.setConfig(appWidgetId, to, from, prefs.getAmount(appWidgetId))
+        prefs.setLoadingState(appWidgetId, false)
 
         CurrencyGlanceWidget().update(context, glanceId)
     }

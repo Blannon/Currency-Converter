@@ -84,8 +84,8 @@ class ExchangeRepositoryImpl(
     private fun isTransient(e: Exception): Boolean {
         return when (e) {
             is java.io.IOException -> true
-            is io.ktor.client.plugins.ServerResponseException -> true // 5xx
-            is io.ktor.client.plugins.ClientRequestException -> {
+            is ServerResponseException -> true // 5xx
+            is ClientRequestException -> {
                 // treat 429 and some 408 as transient
                 val status = e.response.status
                 status.value == 429 || status == HttpStatusCode.RequestTimeout
