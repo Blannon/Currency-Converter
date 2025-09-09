@@ -1,17 +1,14 @@
 package com.blannonnetwork.currencyconveter.widget
 
 import android.content.Context
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.LocalContext
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
@@ -36,18 +33,16 @@ import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider
-import androidx.glance.LocalContext
 import com.blannonnetwork.currencyconveter.presentation.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Locale
-import kotlin.math.abs
 
 class CurrencyGlanceWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val appWidgetId = abs(id.toString().hashCode())
+        val glanceManager = androidx.glance.appwidget.GlanceAppWidgetManager(context)
+        val appWidgetId = glanceManager.getAppWidgetId(id)
         val widgetPrefs = com.blannonnetwork.currencyconveter.widget.data.WidgetPrefs(context)
 
         val fromCurrency = widgetPrefs.getFrom(appWidgetId)
@@ -65,7 +60,7 @@ class CurrencyGlanceWidget : GlanceAppWidget() {
         }
 
         provideContent {
-            currencyWidgetContent(
+            CurrencyWidgetContent(
                 fromCurrency = fromCurrency,
                 toCurrency = toCurrency,
                 amount = amountStr,
@@ -77,14 +72,14 @@ class CurrencyGlanceWidget : GlanceAppWidget() {
 }
 
 @Composable
-private fun currencyWidgetContent(
+private fun CurrencyWidgetContent(
     fromCurrency: String,
     toCurrency: String,
     amount: String,
     convertedAmount: String,
     isLoading: Boolean
 ) {
-    val white: ColorProvider = ColorProvider(day = Color.White, night = Color.White)
+    val white = ColorProvider(day = Color.White, night = Color.White)
     val dimWhite30 = ColorProvider(day = Color.White.copy(alpha = 0.3f), night = Color.White.copy(alpha = 0.3f))
     val dimWhite10 = ColorProvider(day = Color.White.copy(alpha = 0.1f), night = Color.White.copy(alpha = 0.1f))
     val dimBlack20 = ColorProvider(day = Color.Black.copy(alpha = 0.2f), night = Color.Black.copy(alpha = 0.2f))
@@ -218,6 +213,20 @@ private fun currencyWidgetContent(
 
         Spacer(modifier = GlanceModifier.height(6.dp))
 
+        // Last updated time
+        Text(
+            text = LocalContext.current.getString(
+                com.blannonnetwork.currencyconveter.R.string.last_updated,
+                java.text.SimpleDateFormat("dd MMM yyyy HH:mm", java.util.Locale.getDefault()).format(java.util.Date())
+            ),
+            style = TextStyle(
+                color = ColorProvider(day = Color.White.copy(alpha = 0.7f), night = Color.White.copy(alpha = 0.7f)),
+                fontSize = 10.sp
+            )
+        )
+
+        Spacer(modifier = GlanceModifier.height(2.dp))
+
         Text(
             text = LocalContext.current.getString(com.blannonnetwork.currencyconveter.R.string.tap_to_open_app),
             style = TextStyle(
@@ -248,7 +257,8 @@ class SwapAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        val appWidgetId = abs(glanceId.toString().hashCode())
+        val glanceManager = androidx.glance.appwidget.GlanceAppWidgetManager(context)
+        val appWidgetId = glanceManager.getAppWidgetId(glanceId)
         val prefs = com.blannonnetwork.currencyconveter.widget.data.WidgetPrefs(context)
 
         val from = prefs.getFrom(appWidgetId)

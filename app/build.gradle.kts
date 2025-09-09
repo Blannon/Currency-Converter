@@ -1,6 +1,8 @@
 import java.util.Properties
 
 plugins {
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.detekt)
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
@@ -69,6 +71,18 @@ android {
         buildConfig = true
         resValues = true
     }
+}
+
+ktlint {
+    android.set(true)
+    outputColorName.set("RED")
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config = files("${rootDir}\\detekt.yml")
+    baseline = file("${rootDir}\\detekt-baseline.xml")
 }
 
 dependencies {

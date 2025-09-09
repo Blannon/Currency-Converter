@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Currency Conveter</string>
+    <string name="app_name">MonitoRate</string>
     <string name="widget_description">Currency converter widget for quick exchange rate checks</string>
     <string name="currency_converter">Currency Converter</string>
     <string name="refresh">Refresh</string>

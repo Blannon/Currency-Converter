@@ -1,0 +1,32 @@
+processors:
+  active: true
+config:
+  validation: true
+
+build:
+  maxIssues: 0
+
+console-reports:
+  active: true
+
+comments:
+  AbsentOrWrongFileLicense:
+    active: false
+
+style:
+  MagicNumber:
+    active: false
+  MaxLineLength:
+    active: true
+    maxLineLength: 180
+  WildcardImport:
+    active: false
+  UnusedImports:
+    active: true
+
+naming:
+  MatchingDeclarationName:
+    active: false
+  VariableNaming:
+    active: true
+    ignoreOverridden: true

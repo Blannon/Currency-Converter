@@ -98,7 +98,13 @@ private fun ExchangeScreen(
                     )
                 },
                 actions = {
-                    IconButton(onClick = { /* Notifications */ }) {
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    IconButton(onClick = {
+                        tryPinWidget(context)
+                    }) {
+                        Icon(Icons.Default.Add, contentDescription = "Add widget")
+                    }
+                    IconButton(onClick = {  }) {
                         Icon(Icons.Default.Notifications, contentDescription = null)
                     }
                 },
@@ -114,7 +120,6 @@ private fun ExchangeScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Loading/Error State
             if (state.isLoading && state.allCurrencies.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxWidth(),
@@ -690,12 +695,38 @@ private fun CurrencyItem(
 // Helper Functions
 @Composable
 fun getCurrentTimestamp(): String {
-    return "01 Sep 2025 13:53"
+    // Compatible with minSdk 24: use java.text.SimpleDateFormat
+    val locale = java.util.Locale.getDefault()
+    val sdf = java.text.SimpleDateFormat("dd MMM yyyy HH:mm", locale)
+    return sdf.format(java.util.Date())
 }
 
 fun getQuickAccessCurrencies(allCurrencies: List<AppCurrency>): List<AppCurrency> {
     val quickCodes = listOf("AUD", "CAD", "AMD", "ANG")
     return allCurrencies.filter { it.code in quickCodes }
+}
+
+fun tryPinWidget(context: android.content.Context) {
+    val appWidgetManager = android.appwidget.AppWidgetManager.getInstance(context)
+    val provider = android.content.ComponentName(context, com.blannonnetwork.currencyconveter.widget.CurrencyWidgetReceiver::class.java)
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (appWidgetManager.isRequestPinAppWidgetSupported) {
+            val successCallback = null as android.app.PendingIntent?
+            appWidgetManager.requestPinAppWidget(provider, null, successCallback)
+        } else {
+            // Fallback: open widget picker
+            val intent = android.content.Intent("android.intent.action.MAIN").apply {
+                addCategory("android.intent.category.HOME")
+            }
+            context.startActivity(intent)
+        }
+    } else {
+        // Pre-O fallback
+        val intent = android.content.Intent("android.intent.action.MAIN").apply {
+            addCategory("android.intent.category.HOME")
+        }
+        context.startActivity(intent)
+    }
 }
 
 fun getCurrencyColor(code: String): Color {

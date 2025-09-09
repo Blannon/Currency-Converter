@@ -78,8 +78,8 @@ class GlanceWidgetConfigActivity : ComponentActivity() {
                                     try {
                                         val glanceManager = GlanceAppWidgetManager(this@GlanceWidgetConfigActivity)
                                         val glanceIds = glanceManager.getGlanceIds(CurrencyGlanceWidget::class.java)
-                                        val glanceId = glanceIds.firstOrNull {
-                                            it.toString().hashCode() == appWidgetId
+                                        val glanceId = glanceIds.firstOrNull { gid ->
+                                            glanceManager.getAppWidgetId(gid) == appWidgetId
                                         } ?: glanceIds.firstOrNull()
 
                                         if (glanceId != null) {

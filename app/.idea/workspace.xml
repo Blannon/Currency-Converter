@@ -3,22 +3,71 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 1
-}]]></component>
+  <component name="ChangeListManager">
+    <list default="true" id="2d6c71e4-e44a-4ac1-a6b9-ad9b9d0d920a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../.editorconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../detekt-baseline.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../detekt.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.github/workflows/ci_cd.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../.github/workflows/ci_cd.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/blannonnetwork/currencyconveter/presentation/ExchangeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/blannonnetwork/currencyconveter/presentation/ExchangeScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/blannonnetwork/currencyconveter/presentation/ExchangeViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/blannonnetwork/currencyconveter/presentation/ExchangeViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/blannonnetwork/currencyconveter/widget/CurrencyWidget.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/blannonnetwork/currencyconveter/widget/CurrencyWidget.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/blannonnetwork/currencyconveter/widget/WidgetConfigActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/blannonnetwork/currencyconveter/widget/WidgetConfigActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/xml/widget_info.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/xml/widget_info.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/../build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/../gradle/libs.versions.toml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
   <component name="ProjectId" id="325WOOj8mQPe8COk2lVr1kFzbdU" />
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{}</component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "android.gradle.sync.needed": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26199.7" />
+        <option value="bundled-js-predefined-d6986cc7102b-9c94529fcfe0-JavaScript-IU-252.26199.7" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
+      <changelist id="2d6c71e4-e44a-4ac1-a6b9-ad9b9d0d920a" name="Changes" comment="" />
       <created>1756710893742</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1756710893742</updated>
       <workItem from="1756710896734" duration="9000" />
+      <workItem from="1757192495044" duration="30000" />
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
 </project>

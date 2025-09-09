@@ -29,8 +29,20 @@ class ExchangeViewModel(
         viewModelScope.launch {
             try {
                 val currencies = exchangeRepository.getAllCurrencies()
-                // Set default currencies (USD -> EUR) only AFTER loading
-                val defaultFrom = currencies.firstOrNull { it.code == "USD" } ?: currencies.first()
+                // Set defaults based on device country (fallback USD -> EUR)
+                val country = java.util.Locale.getDefault().country
+                val countryToCurrency = mapOf(
+                    "US" to "USD", "GB" to "GBP", "EU" to "EUR", "DE" to "EUR", "FR" to "EUR",
+                    "IT" to "EUR", "ES" to "EUR", "NL" to "EUR", "BE" to "EUR", "IE" to "EUR",
+                    "PT" to "EUR", "AT" to "EUR", "FI" to "EUR", "GR" to "EUR", "SK" to "EUR",
+                    "SI" to "EUR", "EE" to "EUR", "LV" to "EUR", "LT" to "EUR", "CY" to "EUR",
+                    "MT" to "EUR", "LU" to "EUR",
+                    "CA" to "CAD", "AU" to "AUD", "NZ" to "NZD", "JP" to "JPY", "CN" to "CNY",
+                    "IN" to "INR", "RU" to "RUB", "BR" to "BRL", "ZA" to "ZAR", "MX" to "MXN",
+                    "CH" to "CHF", "SE" to "SEK", "NO" to "NOK", "DK" to "DKK", "PL" to "PLN"
+                )
+                val detectedFromCode = countryToCurrency[country] ?: "USD"
+                val defaultFrom = currencies.firstOrNull { it.code == detectedFromCode } ?: currencies.firstOrNull { it.code == "USD" } ?: currencies.first()
                 val defaultTo = currencies.firstOrNull { it.code == "EUR" } ?: currencies.getOrElse(1) { currencies.first() }
 
                 state = state.copy(
@@ -125,22 +137,20 @@ class ExchangeViewModel(
         if (state.amount.isEmpty() || state.amount.toDoubleOrNull() == null) return
 
         viewModelScope.launch {
-            val rates = mutableMapOf<String, String>()
-
-            state.favoriteCurrencies.forEach { currencyCode ->
-                try {
-                    val result = convertUseCase(
-                        fromCurrency = state.from.code,
-                        toCurrency = currencyCode,
-                        amount = state.amount
-                    )
-                    rates[currencyCode] = result.getOrElse { "Error" }
-                } catch (e: Exception) {
-                    rates[currencyCode] = "Error"
+            val amount = state.amount.toDoubleOrNull() ?: return@launch
+            try {
+                // Single call to Latest endpoint for base currency
+                // Limit API requests to avoid overuse; compute top favorites only
+                val limitedFavorites = state.favoriteCurrencies.take(5)
+                val temp = mutableMapOf<String, String>()
+                for (code in limitedFavorites) {
+                    val res = convertUseCase(state.from.code, code, state.amount)
+                    temp[code] = res.getOrElse { "Error" }
                 }
+                state = state.copy(quickAccessRates = temp)
+            } catch (e: Exception) {
+                // keep previous if fails
             }
-
-            state = state.copy(quickAccessRates = rates)
         }
     }
 
