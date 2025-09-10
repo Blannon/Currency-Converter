@@ -39,7 +39,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.lifecycle.lifecycleScope
 import com.blannonnetwork.currencyconveter.domain.Currency
-import com.blannonnetwork.currencyconveter.presentation.ui.theme.CurrencyConveterTheme
+import com.blannonnetwork.currencyconveter.presentation.ui.theme.currencyConverterTheme
 import kotlinx.coroutines.launch
 
 class GlanceWidgetConfigActivity : ComponentActivity() {
@@ -69,7 +69,7 @@ class GlanceWidgetConfigActivity : ComponentActivity() {
 
         try {
             setContent {
-                CurrencyConveterTheme {
+                currencyConverterTheme {
                     WidgetConfigScreen(
                         initialFromCurrency = existingFrom,
                         initialToCurrency = existingTo,

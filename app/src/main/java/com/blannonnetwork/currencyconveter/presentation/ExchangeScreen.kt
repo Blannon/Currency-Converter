@@ -62,7 +62,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.blannonnetwork.currencyconveter.presentation.ui.theme.CurrencyConveterTheme
+import com.blannonnetwork.currencyconveter.presentation.ui.theme.currencyConverterTheme
 import org.koin.androidx.compose.koinViewModel
 import com.blannonnetwork.currencyconveter.domain.Currency as AppCurrency
 
@@ -815,7 +815,7 @@ fun getCurrencyColor(code: String): Color {
 @Preview(showBackground = true)
 @Composable
 private fun exchangeScreenPreview() {
-    CurrencyConveterTheme {
+    currencyConverterTheme {
         ExchangeScreen(
             state =
                 ExchangeState(

@@ -30,7 +30,7 @@ private val LightColorScheme =
     )
 
 @Composable
-fun CurrencyConveterTheme(content: @Composable () -> Unit) {
+fun CurrencyConverterTheme(content: @Composable () -> Unit) {
     val colors =
         lightColorScheme(
             primary = OrangePrimary,

@@ -11,3 +11,12 @@ max_line_length = 180
 [*.{kt,kts}]
 kotlin_code_style = ktlint_official
 ij_kotlin_allow_trailing_comma = true
+
+ktlint_function-naming = disabled
+ktlint_standard_function-naming = disabled
+ktlint_parameter-list-wrapping = disabled
+ktlint_standard_parameter-list-wrapping = disabled
+ktlint_argument-list-wrapping = disabled
+ktlint_standard_argument-list-wrapping = disabled
+ktlint_max-line-length = disabled
+ktlint_standard_max-line-length = disabled

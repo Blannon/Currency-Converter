@@ -73,12 +73,12 @@ android {
 ktlint {
     android.set(true)
     outputColorName.set("RED")
-    disabledRules.set(
-        setOf(
-            "function-naming",
-            "parameter-list-wrapping",
-            "argument-list-wrapping",
-            "max-line-length",
+    additionalEditorconfig.set(
+        mapOf(
+            "ktlint_standard_function-naming" to "disabled",
+            "ktlint_standard_parameter-list-wrapping" to "disabled",
+            "ktlint_standard_argument-list-wrapping" to "disabled",
+            "ktlint_standard_max-line-length" to "disabled",
         ),
     )
 }
