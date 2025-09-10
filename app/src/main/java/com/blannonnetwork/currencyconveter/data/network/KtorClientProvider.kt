@@ -16,44 +16,47 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 object KtorClientProvider {
-    fun create(): HttpClient = HttpClient(CIO) {
-        expectSuccess = true
+    fun create(): HttpClient =
+        HttpClient(CIO) {
+            expectSuccess = true
 
-        engine {
-            endpoint {
-                keepAliveTime = 5000
-                connectTimeout = 5000
-                connectAttempts = 5
+            engine {
+                endpoint {
+                    keepAliveTime = 5000
+                    connectTimeout = 5000
+                    connectAttempts = 5
+                }
+            }
+
+            install(ContentNegotiation) {
+                json(
+                    Json {
+                        prettyPrint = true
+                        isLenient = true
+                        ignoreUnknownKeys = true
+                    },
+                )
+            }
+
+            install(DefaultRequest) {
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+            }
+
+            if (BuildConfig.DEBUG) {
+                install(Logging) {
+                    logger =
+                        object : Logger {
+                            override fun log(message: String) {
+                                val filteredMessage =
+                                    message.replace(
+                                        Regex("v6/[a-f0-9]+/"),
+                                        "v6/****/",
+                                    )
+                                println(filteredMessage)
+                            }
+                        }
+                    level = LogLevel.INFO
+                }
             }
         }
-
-        install(ContentNegotiation) {
-            json(
-                Json {
-                    prettyPrint = true
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                }
-            )
-        }
-
-        install(DefaultRequest) {
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
-        }
-
-        if (BuildConfig.DEBUG) {
-            install(Logging) {
-                logger = object : Logger {
-                    override fun log(message: String) {
-                        val filteredMessage = message.replace(
-                            Regex("v6/[a-f0-9]+/"),
-                            "v6/****/"
-                        )
-                        println(filteredMessage)
-                    }
-                }
-                level = LogLevel.INFO
-            }
-        }
-    }
 }

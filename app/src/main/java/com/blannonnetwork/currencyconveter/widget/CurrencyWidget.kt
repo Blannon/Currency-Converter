@@ -39,8 +39,10 @@ import kotlinx.coroutines.withContext
 import java.util.Locale
 
 class CurrencyGlanceWidget : GlanceAppWidget() {
-
-    override suspend fun provideGlance(context: Context, id: GlanceId) {
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId,
+    ) {
         val glanceManager = androidx.glance.appwidget.GlanceAppWidgetManager(context)
         val appWidgetId = glanceManager.getAppWidgetId(id)
         val widgetPrefs = com.blannonnetwork.currencyconveter.widget.data.WidgetPrefs(context)
@@ -60,9 +62,10 @@ class CurrencyGlanceWidget : GlanceAppWidget() {
                 widgetPrefs.setLoadingState(appWidgetId, true)
                 currentlyLoading = true
 
-                val result = withContext(Dispatchers.IO) {
-                    WidgetRepository.convert(fromCurrency, toCurrency, amt)
-                }
+                val result =
+                    withContext(Dispatchers.IO) {
+                        WidgetRepository.convert(fromCurrency, toCurrency, amt)
+                    }
 
                 convertedAmount = String.format(Locale.US, "%.4f", result)
                 widgetPrefs.setLastConversion(appWidgetId, convertedAmount)
@@ -79,11 +82,12 @@ class CurrencyGlanceWidget : GlanceAppWidget() {
             val lastTimestamp = widgetPrefs.getLastConvertedTimestamp(appWidgetId)
             val isStale = System.currentTimeMillis() - lastTimestamp > 3600000 // 1 hour
 
-            convertedAmount = when {
-                lastConverted != null && !isStale -> lastConverted
-                lastConverted != null && isStale -> "$lastConverted*"
-                else -> "Unavailable"
-            }
+            convertedAmount =
+                when {
+                    lastConverted != null && !isStale -> lastConverted
+                    lastConverted != null && isStale -> "$lastConverted*"
+                    else -> "Unavailable"
+                }
         }
 
         provideContent {
@@ -93,7 +97,7 @@ class CurrencyGlanceWidget : GlanceAppWidget() {
                 amount = amountStr,
                 convertedAmount = convertedAmount,
                 isLoading = currentlyLoading,
-                hasStaleData = convertedAmount.endsWith("*")
+                hasStaleData = convertedAmount.endsWith("*"),
             )
         }
     }
@@ -106,7 +110,7 @@ private fun CurrencyWidgetContent(
     amount: String,
     convertedAmount: String,
     isLoading: Boolean,
-    hasStaleData: Boolean = false
+    hasStaleData: Boolean = false,
 ) {
     val white = ColorProvider(day = Color.White, night = Color.White)
     val dimWhite30 = ColorProvider(day = Color.White.copy(alpha = 0.3f), night = Color.White.copy(alpha = 0.3f))
@@ -117,74 +121,82 @@ private fun CurrencyWidgetContent(
     val bg = ColorProvider(day = Color(0xFF1C1C1E), night = Color(0xFF1C1C1E))
 
     Column(
-        modifier = GlanceModifier
-            .fillMaxSize()
-            .background(bg)
-            .cornerRadius(16.dp)
-            .padding(10.dp)
-            .clickable(actionStartActivity<MainActivity>()),
+        modifier =
+            GlanceModifier
+                .fillMaxSize()
+                .background(bg)
+                .cornerRadius(16.dp)
+                .padding(10.dp)
+                .clickable(actionStartActivity<MainActivity>()),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
             modifier = GlanceModifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = LocalContext.current.getString(com.blannonnetwork.currencyconveter.R.string.currency_converter),
-                style = TextStyle(
-                    color = white,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = GlanceModifier.defaultWeight()
+                style =
+                    TextStyle(
+                        color = white,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
+                modifier = GlanceModifier.defaultWeight(),
             )
 
             Text(
                 text = LocalContext.current.getString(com.blannonnetwork.currencyconveter.R.string.refresh),
-                style = TextStyle(
-                    color = white,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = GlanceModifier
-                    .padding(end = 8.dp)
-                    .clickable(actionRunCallback<RefreshAction>())
+                style =
+                    TextStyle(
+                        color = white,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
+                modifier =
+                    GlanceModifier
+                        .padding(end = 8.dp)
+                        .clickable(actionRunCallback<RefreshAction>()),
             )
         }
 
         Spacer(modifier = GlanceModifier.height(12.dp))
 
         Row(
-            modifier = GlanceModifier
-                .fillMaxWidth()
-                .background(dimWhite10)
-                .cornerRadius(8.dp)
-                .padding(12.dp),
+            modifier =
+                GlanceModifier
+                    .fillMaxWidth()
+                    .background(dimWhite10)
+                    .cornerRadius(8.dp)
+                    .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = fromCurrency,
-                style = TextStyle(
-                    color = white,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = GlanceModifier
-                    .background(dimBlack20)
-                    .cornerRadius(4.dp)
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                style =
+                    TextStyle(
+                        color = white,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
+                modifier =
+                    GlanceModifier
+                        .background(dimBlack20)
+                        .cornerRadius(4.dp)
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
             )
             Spacer(modifier = GlanceModifier.width(8.dp))
             Text(
                 text = amount,
-                style = TextStyle(
-                    color = white,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                style =
+                    TextStyle(
+                        color = white,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
             )
         }
 
@@ -192,58 +204,66 @@ private fun CurrencyWidgetContent(
 
         Text(
             text = LocalContext.current.getString(com.blannonnetwork.currencyconveter.R.string.swap),
-            style = TextStyle(
-                color = white,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            modifier = GlanceModifier
-                .padding(2.dp)
-                .clickable(actionRunCallback<SwapAction>())
+            style =
+                TextStyle(
+                    color = white,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                ),
+            modifier =
+                GlanceModifier
+                    .padding(2.dp)
+                    .clickable(actionRunCallback<SwapAction>()),
         )
 
         Spacer(modifier = GlanceModifier.height(8.dp))
 
         Row(
-            modifier = GlanceModifier
-                .fillMaxWidth()
-                .background(dimWhite10)
-                .cornerRadius(8.dp)
-                .padding(12.dp),
+            modifier =
+                GlanceModifier
+                    .fillMaxWidth()
+                    .background(dimWhite10)
+                    .cornerRadius(8.dp)
+                    .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = toCurrency,
-                style = TextStyle(
-                    color = white,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = GlanceModifier
-                    .background(dimBlack20)
-                    .cornerRadius(4.dp)
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                style =
+                    TextStyle(
+                        color = white,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
+                modifier =
+                    GlanceModifier
+                        .background(dimBlack20)
+                        .cornerRadius(4.dp)
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
             )
 
             Spacer(modifier = GlanceModifier.width(8.dp))
 
             Text(
-                text = when {
-                    isLoading -> LocalContext.current.getString(com.blannonnetwork.currencyconveter.R.string.loading)
-                    convertedAmount == "Unavailable" -> "Unavailable"
-                    else -> convertedAmount.replace("*", "")
-                },
-                style = TextStyle(
-                    color = when {
-                        isLoading -> white
-                        convertedAmount == "Unavailable" -> textAmber
-                        hasStaleData -> textAmber
-                        else -> textGreen
+                text =
+                    when {
+                        isLoading -> LocalContext.current.getString(com.blannonnetwork.currencyconveter.R.string.loading)
+                        convertedAmount == "Unavailable" -> "Unavailable"
+                        else -> convertedAmount.replace("*", "")
                     },
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                style =
+                    TextStyle(
+                        color =
+                            when {
+                                isLoading -> white
+                                convertedAmount == "Unavailable" -> textAmber
+                                hasStaleData -> textAmber
+                                else -> textGreen
+                            },
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
             )
         }
 
@@ -251,31 +271,35 @@ private fun CurrencyWidgetContent(
         if (hasStaleData) {
             Text(
                 text = "* Using cached data",
-                style = TextStyle(
-                    color = ColorProvider(day = Color.White.copy(alpha = 0.6f), night = Color.White.copy(alpha = 0.6f)),
-                    fontSize = 9.sp
-                )
+                style =
+                    TextStyle(
+                        color = ColorProvider(day = Color.White.copy(alpha = 0.6f), night = Color.White.copy(alpha = 0.6f)),
+                        fontSize = 9.sp,
+                    ),
             )
         }
         Text(
-            text = LocalContext.current.getString(
-                com.blannonnetwork.currencyconveter.R.string.last_updated,
-                java.text.SimpleDateFormat("dd MMM yyyy HH:mm", java.util.Locale.getDefault()).format(java.util.Date())
-            ),
-            style = TextStyle(
-                color = ColorProvider(day = Color.White.copy(alpha = 0.7f), night = Color.White.copy(alpha = 0.7f)),
-                fontSize = 10.sp
-            )
+            text =
+                LocalContext.current.getString(
+                    com.blannonnetwork.currencyconveter.R.string.last_updated,
+                    java.text.SimpleDateFormat("dd MMM yyyy HH:mm", java.util.Locale.getDefault()).format(java.util.Date()),
+                ),
+            style =
+                TextStyle(
+                    color = ColorProvider(day = Color.White.copy(alpha = 0.7f), night = Color.White.copy(alpha = 0.7f)),
+                    fontSize = 10.sp,
+                ),
         )
 
         Spacer(modifier = GlanceModifier.height(2.dp))
 
         Text(
             text = LocalContext.current.getString(com.blannonnetwork.currencyconveter.R.string.tap_to_open_app),
-            style = TextStyle(
-                color = ColorProvider(day = Color.White.copy(alpha = 0.7f), night = Color.White.copy(alpha = 0.7f)),
-                fontSize = 10.sp
-            )
+            style =
+                TextStyle(
+                    color = ColorProvider(day = Color.White.copy(alpha = 0.7f), night = Color.White.copy(alpha = 0.7f)),
+                    fontSize = 10.sp,
+                ),
         )
     }
 }
@@ -284,7 +308,7 @@ class RefreshAction : ActionCallback {
     override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
-        parameters: ActionParameters
+        parameters: ActionParameters,
     ) {
         val glanceManager = androidx.glance.appwidget.GlanceAppWidgetManager(context)
         val appWidgetId = glanceManager.getAppWidgetId(glanceId)
@@ -303,7 +327,7 @@ class SwapAction : ActionCallback {
     override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
-        parameters: ActionParameters
+        parameters: ActionParameters,
     ) {
         val glanceManager = androidx.glance.appwidget.GlanceAppWidgetManager(context)
         val appWidgetId = glanceManager.getAppWidgetId(glanceId)

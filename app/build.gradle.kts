@@ -73,6 +73,14 @@ android {
 ktlint {
     android.set(true)
     outputColorName.set("RED")
+    disabledRules.set(
+        setOf(
+            "function-naming",
+            "parameter-list-wrapping",
+            "argument-list-wrapping",
+            "max-line-length",
+        ),
+    )
 }
 
 detekt {
@@ -95,6 +103,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
+    implementation(libs.androidx.compose.material3)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -11,10 +11,9 @@ import kotlinx.serialization.Serializable
 import kotlin.random.Random
 
 object WidgetRepository {
-
     @Serializable
     data class WidgetExchange(
-        val conversion_result: Double
+        val conversion_result: Double,
     )
 
     private val httpClient: HttpClient = com.blannonnetwork.currencyconveter.data.network.KtorClientProvider.create()
@@ -27,7 +26,7 @@ object WidgetRepository {
     suspend fun convert(
         fromCurrency: String,
         toCurrency: String,
-        amount: Double
+        amount: Double,
     ): Double {
         return withTimeout(TIMEOUT_DURATION) {
             var lastException: Exception? = null
@@ -36,13 +35,13 @@ object WidgetRepository {
                 try {
                     Log.d("WidgetRepository", "Attempting conversion: $fromCurrency -> $toCurrency (attempt ${attempt + 1})")
 
-                    val result: WidgetExchange = httpClient.get(
-                        "$BASE_URL/$API_KEY/pair/$fromCurrency/$toCurrency/$amount"
-                    ).body()
+                    val result: WidgetExchange =
+                        httpClient.get(
+                            "$BASE_URL/$API_KEY/pair/$fromCurrency/$toCurrency/$amount",
+                        ).body()
 
                     Log.d("WidgetRepository", "Conversion successful: ${result.conversion_result}")
                     return@withTimeout result.conversion_result
-
                 } catch (e: Exception) {
                     lastException = e
                     Log.w("WidgetRepository", "Conversion attempt ${attempt + 1} failed: ${e.message}")

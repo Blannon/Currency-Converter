@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 data class CodesResponse(
     @SerialName("result") val result: String? = null,
     // API returns array of [code, name]
-    @SerialName("supported_codes") val supportedCodes: List<List<String>> = emptyList()
+    @SerialName("supported_codes") val supportedCodes: List<List<String>> = emptyList(),
 )

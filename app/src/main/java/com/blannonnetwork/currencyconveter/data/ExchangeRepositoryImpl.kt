@@ -1,44 +1,45 @@
 package com.blannonnetwork.currencyconveter.data
 
-import com.blannonnetwork.currencyconveter.BuildConfig
+import com.blannonnetwork.currencyconveter.data.mappers.toConversionResult
+import com.blannonnetwork.currencyconveter.data.network.dto.PairResponse
 import com.blannonnetwork.currencyconveter.domain.Currency
 import com.blannonnetwork.currencyconveter.domain.ExchangeRepository
-import com.blannonnetwork.currencyconveter.data.network.dto.PairResponse
-import com.blannonnetwork.currencyconveter.data.mappers.toConversionResult
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.request.get
-import io.ktor.client.plugins.*
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.delay
 
 class ExchangeRepositoryImpl(
     private val httpClient: HttpClient,
-    private val apiConfig: com.blannonnetwork.currencyconveter.di.ApiConfig
-): ExchangeRepository {
-
-    private val tag ="ExchangeRepositoryImpl: "
-    private val BASE_URL = apiConfig.baseUrl
-    private val ApiKey = apiConfig.apiKey
+    private val apiConfig: com.blannonnetwork.currencyconveter.di.ApiConfig,
+) : ExchangeRepository {
+    private val tag = "ExchangeRepositoryImpl: "
+    private val baseUrl = apiConfig.baseUrl
+    private val apIkey = apiConfig.apiKey
 
     private val rateCache = mutableMapOf<Pair<String, String>, Double>()
 
     override suspend fun convert(
         fromCurrency: String,
         toCurrency: String,
-        amount: Double
+        amount: Double,
     ): Result<Double> {
         val pairKey = fromCurrency to toCurrency
         return try {
-            val result = retryWithBackoff {
-                val response: PairResponse = httpClient.get(
-                    "$BASE_URL/$ApiKey/pair/$fromCurrency/$toCurrency/$amount"
-                ).body()
-                if (response.result == "error") {
-                    throw com.blannonnetwork.currencyconveter.data.network.ApiErrorException(response.errorType ?: "unknown-error")
+            val result =
+                retryWithBackoff {
+                    val response: PairResponse =
+                        httpClient.get(
+                            "$baseUrl/$apIkey/pair/$fromCurrency/$toCurrency/$amount",
+                        ).body()
+                    if (response.result == "error") {
+                        throw com.blannonnetwork.currencyconveter.data.network.ApiErrorException(response.errorType ?: "unknown-error")
+                    }
+                    response.toConversionResult()
                 }
-                response.toConversionResult()
-            }
             // Cache rate per 1 unit if amount > 0
             if (amount > 0) {
                 val rate = result / amount
@@ -62,7 +63,7 @@ class ExchangeRepositoryImpl(
         initialDelayMs: Long = 200,
         maxDelayMs: Long = 1500,
         factor: Double = 2.0,
-        block: suspend () -> T
+        block: suspend () -> T,
     ): T {
         var currentDelay = initialDelayMs
         var attempt = 0
@@ -100,18 +101,22 @@ class ExchangeRepositoryImpl(
     override suspend fun getAllCurrencies(): List<Currency> {
         cachedCurrencies?.let { return it }
 
-        val codesResponse: com.blannonnetwork.currencyconveter.data.network.dto.CodesResponse = httpClient.get(
-            "$BASE_URL/$ApiKey/codes"
-        ).body()
+        val codesResponse: com.blannonnetwork.currencyconveter.data.network.dto.CodesResponse =
+            httpClient.get(
+                "$baseUrl/$apIkey/codes",
+            ).body()
 
-        val currencies = codesResponse.supportedCodes
-            .mapNotNull { pair ->
-                val code = pair.getOrNull(0)
-                val name = pair.getOrNull(1)
-                if (com.blannonnetwork.currencyconveter.domain.CurrencyCode.isValid(code) && !name.isNullOrBlank()) {
-                    Currency(name = name, code = code!!)
-                } else null
-            }
+        val currencies =
+            codesResponse.supportedCodes
+                .mapNotNull { pair ->
+                    val code = pair.getOrNull(0)
+                    val name = pair.getOrNull(1)
+                    if (com.blannonnetwork.currencyconveter.domain.CurrencyCode.isValid(code) && !name.isNullOrBlank()) {
+                        Currency(name = name, code = code!!)
+                    } else {
+                        null
+                    }
+                }
 
         cachedCurrencies = currencies
         return currencies

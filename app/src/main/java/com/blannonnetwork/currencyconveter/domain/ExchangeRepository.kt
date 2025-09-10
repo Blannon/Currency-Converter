@@ -4,7 +4,7 @@ interface ExchangeRepository {
     suspend fun convert(
         fromCurrency: String,
         toCurrency: String,
-        amount: Double
+        amount: Double,
     ): Result<Double>
 
     suspend fun getAllCurrencies(): List<Currency>

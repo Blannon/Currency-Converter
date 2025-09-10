@@ -1,12 +1,12 @@
 package com.blannonnetwork.currencyconveter.domain
 
 class ConvertUseCase(
-    private val exchangeRepository: ExchangeRepository
+    private val exchangeRepository: ExchangeRepository,
 ) {
     suspend operator fun invoke(
         fromCurrency: String,
         toCurrency: String,
-        amount: String
+        amount: String,
     ): Result<String> {
         if (fromCurrency.isBlank() || toCurrency.isBlank() || amount.isBlank()) {
             return Result.success("")
