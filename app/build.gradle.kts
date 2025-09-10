@@ -69,7 +69,7 @@ android {
         resValues = true
     }
 }
-kotlin{
+kotlin {
     jvmToolchain(17)
 }
 ktlint {
