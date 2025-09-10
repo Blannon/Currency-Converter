@@ -27,10 +27,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-
     }
     val localProperties = Properties()
-    val localPropertiesFile = File(rootDir,"secret.properties")
+    val localPropertiesFile = File(rootDir, "secret.properties")
     if (localPropertiesFile.exists() && localPropertiesFile.isFile) {
         localPropertiesFile.inputStream().use {
             localProperties.load(it)
@@ -42,12 +41,12 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             buildConfigField(
                 "String",
                 "EXCHANGE_RATE_API_KEY",
-                "\"${localProperties.getProperty("EXCHANGE_RATE_API_KEY") ?: ""}\""
+                "\"${localProperties.getProperty("EXCHANGE_RATE_API_KEY") ?: ""}\"",
             )
         }
 
@@ -55,7 +54,7 @@ android {
             buildConfigField(
                 "String",
                 "API_KEY",
-                "\"${localProperties.getProperty("API_KEY") ?: ""}\""
+                "\"${localProperties.getProperty("API_KEY") ?: ""}\"",
             )
         }
     }
