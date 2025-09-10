@@ -69,7 +69,9 @@ android {
         resValues = true
     }
 }
-
+kotlin{
+    jvmToolchain(17)
+}
 ktlint {
     android.set(true)
     outputColorName.set("RED")

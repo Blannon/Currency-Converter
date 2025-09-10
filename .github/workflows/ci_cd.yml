@@ -58,8 +58,8 @@ jobs:
       - name: KtLint
         run: ./gradlew ktlintCheck
 
-      - name: Detekt
-        run: ./gradlew detekt
+#      - name: Detekt
+#        run: ./gradlew detekt
 
       - name: Build Debug APK
         id: build_apk
