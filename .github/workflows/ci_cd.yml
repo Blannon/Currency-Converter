@@ -33,6 +33,12 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Create local.properties
+        run: echo "sdk.dir=$ANDROID_HOME" > local.properties
+
       - name: Create secret.properties for API keys
         run: |
          echo "API_KEY=${{ secrets.DEBUG_API_KEY }}" > secret.properties
