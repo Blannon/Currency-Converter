@@ -270,7 +270,7 @@ private fun CurrencyWidgetContent(
         Spacer(modifier = GlanceModifier.height(6.dp))
         if (hasStaleData) {
             Text(
-                text = "* Using cached data",
+                text = "* Recent Rate",
                 style =
                     TextStyle(
                         color = ColorProvider(day = Color.White.copy(alpha = 0.6f), night = Color.White.copy(alpha = 0.6f)),
